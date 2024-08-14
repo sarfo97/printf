@@ -1,56 +1,76 @@
 #include "main.h"
 
-void write_buffer(char buf[], int *b_ind);
-
-/**
- * _printf - prints string literals
- * @format: contains character string to be printed
- * Return: numbers of characters
- */
-int _printf(const char *format, ...)
+int print_str(char *str)
 {
-	va_list args;
-	int a, chars_count = 0, b_ind = 0, spec_count = 0;
-	int flags, width, precision, size;
-	char buff[BUFF_SIZE];
+  int count = 0;
+  while (*str != '\0')
+  {
+      write(1, str, 1);
+      str++;
+      count++;
+  }
 
-	if (format == NULL)
-		return (-1);
+ int _printf(const char *format, ...)
+{
+ int count = 0
 
-	va_start(args, format);
+ va_list args;
 
-	for (a = 0; format && format[a] != '\0'; a++)
-	{
-		if (format[a] != '%')
-		{
-			buff[b_ind++] = format[a];
-			if (b_ind == BUFF_SIZE)
-				write_buffer(buff, &b_ind);
-			chars_count++;
-		}
-		else
-		{
-			write_buffer(buff, &b_ind);
-			flags = calc_flags(format, &a);
-			size = calc_size(format, &a);
-			precision = calc_precision(format, &a, args);
-			width = calc_width(format, &a, args);
-			a++;
-			spec_count = print_spec(format, &a, args, buff,
-					flags, width, precision, size);
-			if (spec_count == -1)
-				return (-1);
-			chars_count += spec_count;
-		}
-	}
-	write_buffer(buff, &b_ind);
-	va_end(args);
-	return (chars_count);
+ if(format == NULL){
+    return(-1)
+ }
+ 
+ va_start(args_list, format);
+
+ while (*format != '\0')
+  {
+    if (*format == '%')
+    {
+      format++; // Move to the next character after '%'
+      if (*format == 'c') {
+        char s = va_arg(args, int);
+        count += write(1, &s, 1);
+      }
+      else if (*format == 's') {
+        char *str = va_arg(args, char*);
+        count += print_str(str);
+      }
+      else if (*format == 'd' || *format == 'i')
+      {
+        int num = va_arg(args, int);
+        count += print_int(num);
+      }
+      else {
+        print_str("unIdentified formatter\n");
+        return (-1);
+      }
+    }
+    else {
+      write(1, format, 1);
+      count++;
+    }
+    format++;
+  }
+
+  va_end(args);
+  return (count);
 }
 
-void write_buffer(char buf[], int *b_ind)
+
+
+int main(void)
 {
-	if (*b_ind > 0)
-		write(1, &buf[0], *b_ind);
-	*b_ind = 0;
+  printf("This is trial\n");
+  printf("This is number %d\n", 12);
+  printf("This is a name %s\n", "ALX");
+  printf("This is a character %c\n", 97);
+  printf("%%");
+
+  printf("This is the result of custom printf\n");
+  _printf("This is trial\n");
+  _printf("This is number %d\n", 12);
+  _printf("This is a name %s\n", "ALX");
+  _printf("This is a character %c\n", 97);
+
+  return (0);
 }
