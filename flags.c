@@ -1,33 +1,34 @@
 #include "main.h"
-/**
- * flags: gets the flags for non
- * conversion specifiers
- * @format: format string
- * @ind: index position
- * Return: flag
- */
-int calc_flags(const char *format, int *ind)
-{
-	int a = *ind + 1, b, flag = 0;
-	const char flag_chars[] = {'+', ' ', '#', '0', '-', '\0'};
-	const int flag_conv[] = {2, 16, 8, 4, 1, 0};
 
-	while(format[a] != '\0')
+/**
+ * get_flags - Calculates active flags
+ * @format: Formatted string in which to print the arguments
+ * @i: take a parameter.
+ * Return: Flags:
+ */
+int get_flags(const char *format, int *i)
+{
+	/* - + 0 # ' ' */
+	/* 1 2 4 8  16 */
+	int j, curr_i;
+	int flags = 0;
+	const char FLAGS_CH[] = {'-', '+', '0', '#', ' ', '\0'};
+	const int FLAGS_ARR[] = {F_MINUS, F_PLUS, F_ZERO, F_HASH, F_SPACE, 0};
+
+	for (curr_i = *i + 1; format[curr_i] != '\0'; curr_i++)
 	{
-		for (b = 0; flag_chars[b] != '\0'; b++)
-		{
-			if (format[a] == flag_chars[b])
+		for (j = 0; FLAGS_CH[j] != '\0'; j++)
+			if (format[curr_i] == FLAGS_CH[j])
 			{
-				flag = flag | flag_conv[b];
+				flags |= FLAGS_ARR[j];
 				break;
 			}
-		}
-		if (flag_chars[b] == 0)
-			break;
 
-		a++;
+		if (FLAGS_CH[j] == 0)
+			break;
 	}
 
-	*ind = a - 1;
-	return (flag);
+	*i = curr_i - 1;
+
+	return (flags);
 }

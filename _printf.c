@@ -1,76 +1,69 @@
+#include <stdarg.h>
+#include <unistd.h>
 #include "main.h"
 
-int print_str(char *str)
+#define BUFF_SIZE 1024  /* Define buffer size */
+
+void print_buffer(char buffer[], int *buff_ind);
+
+/**
+ * _printf - Printf function
+ * @format: format string.
+ * Return: Number of printed characters.
+ */
+int _printf(const char *format, ...)
 {
-  int count = 0;
-  while (*str != '\0')
-  {
-      write(1, str, 1);
-      str++;
-      count++;
-  }
+	int i, printed = 0, printed_chars = 0;
+	int flags, width, precision, size, buff_ind = 0;
+	va_list list;
+	char buffer[BUFF_SIZE];
 
- int _printf(const char *format, ...)
-{
- int count = 0
+	if (format == NULL)
+		return (-1);
 
- va_list args;
+	va_start(list, format);
 
- if(format == NULL){
-    return(-1)
- }
- 
- va_start(args_list, format);
+	for (i = 0; format && format[i] != '\0'; i++)
+	{
+		if (format[i] != '%')
+		{
+			buffer[buff_ind++] = format[i];
+			if (buff_ind == BUFF_SIZE)
+				print_buffer(buffer, &buff_ind);
+			printed_chars++;
+		}
+		else
+		{
+			print_buffer(buffer, &buff_ind);
+			flags = get_flags(format, &i);  /* Implement this function */
+			width = get_width(format, &i, list);  /* Implement this function */
+			precision = get_precision(format, &i, list);  /* Implement this function */
+			size = get_size(format, &i);  /* Implement this function */
+			++i;
+			printed = handle_print(format, &i, list, buffer,
+				flags, width, precision, size);  /* Implement this function */
+			if (printed == -1)
+				return (-1);
+			printed_chars += printed;
+		}
+	}
 
- while (*format != '\0')
-  {
-    if (*format == '%')
-    {
-      format++; // Move to the next character after '%'
-      if (*format == 'c') {
-        char s = va_arg(args, int);
-        count += write(1, &s, 1);
-      }
-      else if (*format == 's') {
-        char *str = va_arg(args, char*);
-        count += print_str(str);
-      }
-      else if (*format == 'd' || *format == 'i')
-      {
-        int num = va_arg(args, int);
-        count += print_int(num);
-      }
-      else {
-        print_str("unIdentified formatter\n");
-        return (-1);
-      }
-    }
-    else {
-      write(1, format, 1);
-      count++;
-    }
-    format++;
-  }
+	print_buffer(buffer, &buff_ind);
 
-  va_end(args);
-  return (count);
+	va_end(list);
+
+	return (printed_chars);
 }
 
-
-
-int main(void)
+/**
+ * print_buffer - Prints the contents of the buffer if it exists
+ * @buffer: Array of chars
+ * @buff_ind: Index at which to add next char, represents the length.
+ */
+void print_buffer(char buffer[], int *buff_ind)
 {
-  printf("This is trial\n");
-  printf("This is number %d\n", 12);
-  printf("This is a name %s\n", "ALX");
-  printf("This is a character %c\n", 97);
-  printf("%%");
+	if (*buff_ind > 0)
+		write(1, &buffer[0], *buff_ind);
 
-  printf("This is the result of custom printf\n");
-  _printf("This is trial\n");
-  _printf("This is number %d\n", 12);
-  _printf("This is a name %s\n", "ALX");
-  _printf("This is a character %c\n", 97);
-
-  return (0);
+	*buff_ind = 0;
 }
